@@ -1,0 +1,41 @@
+/* @import url("./xy-theme.css");
+
+html,
+body {
+  margin: 0;
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+}
+
+.wrapper {
+  flex-grow: 1;
+  height: 100%;
+} */
+
+@import url("./xy-theme.css");
+
+html,
+body {
+  margin: 0;
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
+
+#app {
+  width: 100vw;
+  height: 100vh;
+}
+
+.wrapper {
+  width: 70%;
+  height: 70vh; /* Tüm ekranı kaplar */
+}
+
+.react-flow {
+  background-color: #f7f9fb;
+}
