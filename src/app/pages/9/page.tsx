@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
 import {
   ReactFlow,
@@ -13,13 +13,15 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import VisualNodePanel from "../../components/GorselPanel";
 
 import { AnimatedSVGEdge } from "@/app/EdgeNodeType/AnimatedSVGEdge";
+import ConnectionLine from "@/app/EdgeNodeType/ConnectionLine";
+
 import ResizableNodeSelected from "@/app/EdgeNodeType/ResizableNodeSelected";
 import "react-resizable/css/styles.css"; // CSS for resizable nodes
 import "@xyflow/react/dist/style.css";
 import "@/app/index.css";
-import ConnectionLine from "@/app/EdgeNodeType/ConnectionLine";
 import ButtonEdge from "@/app/EdgeNodeType/ButtonEdge";
 import { MdOutlineDownloadDone } from "react-icons/md";
 import ThemeToggle from "@/app/components/ThemeToggle";
@@ -176,50 +178,32 @@ const MindMapPage = () => {
     setNodeContent("");
   };
 
-  const saveAsPng = () => {
-    const element = document.getElementById("react-flow-wrapper");
-    if (element) {
-      import("html-to-image").then((htmlToImage) => {
-        htmlToImage.toPng(element).then((dataUrl) => {
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = "mind-map.png";
-          link.click();
-        });
-      });
-    } else {
-      alert("Target element bulunamadı!");
-    }
-  };
-
-  const [isPanelOpen, setIsPanelOpen] = useState(false); // Panelin açık/kapalı durumu
-
-  const images2 = [
-    { id: "image1", src: "/img1.jpeg", alt: "Image 1" },
-    { id: "image2", src: "/img2.jpeg", alt: "Image 2" },
-    { id: "image3", src: "/img3.jpg", alt: "Image 3" },
-    { id: "image4", src: "/img4.jpeg", alt: "Image 4" },
-    { id: "image5", src: "/img5.jpg", alt: "Image 5" },
-    { id: "image6", src: "/img6.jpeg", alt: "Image 6" },
-    { id: "image7", src: "/img7.jpeg", alt: "Image 7" },
-    { id: "image8", src: "/img8.jpg", alt: "Image 8" },
-    { id: "image9", src: "/img9.jpg", alt: "Image 9" },
-    { id: "image10", src: "/img10.jpeg", alt: "Image 10" },
+  const initialImages = [
+    { id: "image1", src: "/img1.jpeg", alt: "" },
+    { id: "image2", src: "/img2.jpeg", alt: "" },
+    { id: "image3", src: "/img3.jpg", alt: "" },
+    { id: "image4", src: "/img4.jpeg", alt: "" },
+    { id: "image5", src: "/img5.jpg", alt: "" },
+    { id: "image6", src: "/img6.jpeg", alt: "" },
+    { id: "image7", src: "/img7.jpeg", alt: "" },
+    { id: "image8", src: "/img8.jpg", alt: "" },
+    { id: "image9", src: "/img9.jpg", alt: "" },
+    { id: "image10", src: "/img10.jpeg", alt: "" },
+    { id: "image11", src: "/img11.jpg", alt: "" },
+    { id: "image12", src: "/img12.jpg", alt: "" },
   ];
-  const handleDragStart = (e, img) => {
+  const onDragStart = (e, img) => {
     e.dataTransfer.setData("imageId", img.id);
   };
 
-  const handleDrop = (event) => {
+  const onDrop = (event) => {
     event.preventDefault();
-
     const imageId = event.dataTransfer.getData("imageId");
-    const droppedImage = images2.find((img) => img.id === imageId);
+    const droppedImage = initialImages.find((img) => img.id === imageId);
 
     const reactFlowBounds = document
       .getElementById("react-flow-wrapper")
-      ?.getBoundingClientRect();
-
+      .getBoundingClientRect();
     const position = {
       x: event.clientX - reactFlowBounds.left,
       y: event.clientY - reactFlowBounds.top,
@@ -227,17 +211,9 @@ const MindMapPage = () => {
 
     const newNode = {
       id: `${droppedImage.id}-${Date.now()}`,
-      type: "default",
+      type: "ResizableNodeSelected",
       position,
-      data: {
-        label: (
-          <img
-            src={droppedImage.src}
-            alt={droppedImage.alt}
-            style={{ maxWidth: "100px" }}
-          />
-        ),
-      },
+      data: { label: droppedImage.alt, imageSrc: droppedImage.src },
     };
 
     setNodes((nds) => nds.concat(newNode));
@@ -252,7 +228,6 @@ const MindMapPage = () => {
       className="h-screen p-8"
     >
       <div className="flex justify-between items-center mb-4">
-        {/* <h1 className="text-2xl font-bold">Zihin Haritası</h1> */}
         <ThemeToggle />
       </div>
       <div className="mb-4">
@@ -264,44 +239,28 @@ const MindMapPage = () => {
         />
 
         <SaveMindMapAsPngButton targetId="react-flow-wrapper" />
-        <div>
-          <MindMapActions
-            nodes={nodes}
-            setNodes={setNodes}
-            edges={edges}
-            setEdges={setEdges}
-            selectedNodeId={selectedNodeId}
-            setSelectedNodeId={setSelectedNodeId}
-          />
+        <MindMapActions
+          nodes={nodes}
+          setNodes={setNodes}
+          edges={edges}
+          setEdges={setEdges}
+          selectedNodeId={selectedNodeId}
+          setSelectedNodeId={setSelectedNodeId}
+        />
 
-          <h1
-            style={{
-              position: "absolute",
-              top: "690px",
-              right: "1170px",
-              color: "lightblue",
-              fontStyle: "italic", // Yazıyı eğik yapar
-              fontFamily: "'Georgia', serif", // Farklı bir yazı tipi
-              fontWeight: "bold", // Kalın yazı stili
-              fontSize: "12px", // Yazı boyutu
-            }}
-          >
-            Bin atlı akınlarda çocuklar gibi şendik<br></br>
-            Bin atlı o gün dev gibi bir orduyu yendik
+        <div>
+          <h1 className="altyazi">
+            İmkanın Sınırlarını Görmek İçin <br></br>
+            İmkansızı Denemek Lazım<br></br>
+            Fatih Sultan Mehmet
           </h1>
         </div>
       </div>
       <div style={{ display: "flex" }}>
         <div
-          style={{
-            height: "80%",
-            border: "1px solid #ccc",
-            backgroundColor: "#e5e7eb",
-            width: "74%",
-          }}
           id="react-flow-wrapper"
           onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDrop}
+          onDrop={onDrop}
         >
           <ReactFlow
             nodes={nodes}
@@ -330,48 +289,10 @@ const MindMapPage = () => {
             <Controls />
           </ReactFlow>
         </div>
-        <div
-          className="mt-4"
-          style={{
-            marginTop: "5.5rem",
-            position: "absolute",
-            top: "0",
-            right: "0",
-            padding: "15px",
-            marginRight: "30px",
-            backgroundColor: "#f9f9f9",
-            borderRadius: "8px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            width: "300px",
-            transition: "all 0.3s ease-in-out",
-            fontFamily: "'Roboto', sans-serif",
-          }}
-        >
+        <div className="mt-4">
           <div className="flex justify-between items-center">
-            <h3
-              style={{
-                fontWeight: "700",
-                fontSize: "1.4rem",
-                textAlign: "center",
-                marginBottom: "10px",
-                color: "#333",
-                fontFamily: "'Poppins', sans-serif",
-              }}
-              className="font-semibold"
-            >
-              Düğüm Ayarları
-            </h3>
-            <button
-              onClick={togglePanel}
-              className="text-lg"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "#668b8b",
-                fontSize: "20px",
-              }}
-            >
+            <h3 className="font-semibold">Düğüm Ayarları</h3>
+            <button onClick={togglePanel}>
               {isOpen ? (
                 <FiChevronUp style={{ fontSize: "20px", color: "#668b8b" }} />
               ) : (
@@ -384,16 +305,7 @@ const MindMapPage = () => {
             <div>
               {/* Yeni Düğüm Adı */}
               <div className="mb-4">
-                <label
-                  className="block mb-2"
-                  style={{
-                    fontSize: "1rem",
-                    color: "#555",
-                    fontWeight: "500",
-                  }}
-                >
-                  Yeni Düğüm Adı:
-                </label>
+                <label className="label">Yeni Düğüm Adı:</label>
                 <div className="flex items-center">
                   <input
                     type="text"
@@ -486,7 +398,7 @@ const MindMapPage = () => {
                           ? "#e3a869"
                           : editingCategory === "ton10"
                           ? "#8b4513"
-                          : "#ffffff",
+                          : "#A52A2A",
                       border: "1px solid #ccc",
                     }}
                   />
@@ -548,84 +460,11 @@ const MindMapPage = () => {
                     />
                   </button>
                 </div>
-                <div
-                  className="mt-4"
-                  style={{
-                    backgroundColor: "#f9f9f9",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-                    width: "270px",
-                    transition: "all 0.3s ease-in-out",
-                    fontFamily: "'Roboto', sans-serif",
-                  }}
-                >
-                  <div className="flex justify-between items-center">
-                    <h3
-                      style={{
-                        fontWeight: "700",
-                        fontSize: "1.4rem",
-                        textAlign: "center",
-                        marginBottom: "10px",
-                        marginLeft: "10px",
-                        color: "#333",
-                        fontFamily: "'Poppins', sans-serif",
-                      }}
-                      className="font-semibold"
-                    >
-                      Görseller
-                    </h3>
 
-                    <button
-                      onClick={() => setIsPanelOpen(!isPanelOpen)}
-                      className="text-lg"
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "#668b8b",
-                        fontSize: "20px",
-                      }}
-                    >
-                      {isPanelOpen ? (
-                        <FiChevronUp
-                          style={{ fontSize: "20px", color: "#668b8b" }}
-                        />
-                      ) : (
-                        <FiChevronDown
-                          style={{ fontSize: "20px", color: "#668b8b" }}
-                        />
-                      )}
-                    </button>
-                  </div>
-                  {isPanelOpen && (
-                    <div
-                      style={{
-                        display: "flex", // Flex düzenini aktif et
-                        flexWrap: "wrap", // Görsellerin satırlara sığması için
-                        justifyContent: "center", // Yatayda ortala
-                        alignItems: "center", // Dikeyde ortala
-                        gap: "10px", // Görseller arasında boşluk ekle
-                        padding: "10px", // Panelin iç kenar boşluğu
-                      }}
-                    >
-                      {images2.map((img) => (
-                        <img
-                          key={img.id}
-                          src={img.src}
-                          alt={img.alt}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, img)}
-                          style={{
-                            width: "60px",
-                            marginBottom: "5px",
-
-                            cursor: "grab",
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <VisualNodePanel
+                  images={initialImages}
+                  onDragStart={onDragStart}
+                />
               </div>
             </div>
           )}
