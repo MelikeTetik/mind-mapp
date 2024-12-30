@@ -1,13 +1,32 @@
 import React, { useEffect } from "react";
 import { FaSave, FaUpload } from "react-icons/fa";
 
-interface SaveMindMapButtonProps {
-  nodes: any[]; // Replace `any` with the actual type of your nodes
-  edges: any[]; // Replace `any` with the actual type of your edges
-  setNodes: React.Dispatch<React.SetStateAction<any[]>>; // Function to update nodes
-  setEdges: React.Dispatch<React.SetStateAction<any[]>>; // Function to update edges
+interface Node {
+  id: string;
+  data: {
+    label: string;
+    src?: string; // Resim yolu
+  };
+  position: {
+    x: number;
+    y: number;
+  };
 }
-const id = 9;
+
+interface Edge {
+  id: string;
+  source: string;
+  target: string;
+}
+
+interface SaveMindMapButtonProps {
+  nodes: Node[]; // Düğüm tipleri
+  edges: Edge[]; // Kenar tipleri
+  setNodes: React.Dispatch<React.SetStateAction<Node[]>>; // Düğüm güncelleme fonksiyonu
+  setEdges: React.Dispatch<React.SetStateAction<Edge[]>>; // Kenar güncelleme fonksiyonu
+}
+
+const id = 9; // Sayfanın benzersiz ID'si
 
 const SaveMindMapButton: React.FC<SaveMindMapButtonProps> = ({
   nodes,
@@ -15,10 +34,36 @@ const SaveMindMapButton: React.FC<SaveMindMapButtonProps> = ({
   setNodes,
   setEdges,
 }) => {
-  // Sayfanın benzersiz ID'sini almak için
+  const encodeImageToBase64 = async (src: string) => {
+    try {
+      const response = await fetch(src);
+      const blob = await response.blob();
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error("Resim dönüştürme hatası:", error);
+      return src; // Hata durumunda orijinal yolu döndür
+    }
+  };
 
-  const saveMindMap = () => {
-    const mindMapData = { nodes, edges };
+  const saveMindMap = async () => {
+    const nodesWithBase64 = await Promise.all(
+      nodes.map(async (node) => {
+        if (node.data.src) {
+          const base64 = await encodeImageToBase64(node.data.src);
+          return {
+            ...node,
+            data: { ...node.data, src: base64 },
+          };
+        }
+        return node;
+      })
+    );
+
+    const mindMapData = { nodes: nodesWithBase64, edges };
     localStorage.setItem(`mindMapData_${id}`, JSON.stringify(mindMapData));
     alert("Zihin haritası kaydedildi!");
   };
@@ -27,21 +72,29 @@ const SaveMindMapButton: React.FC<SaveMindMapButtonProps> = ({
     const savedMindMap = localStorage.getItem(`mindMapData_${id}`);
     if (savedMindMap) {
       const { nodes: savedNodes, edges: savedEdges } = JSON.parse(savedMindMap);
-      setNodes(savedNodes);
+
+      const updatedNodes = savedNodes.map((node: Node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          src: typeof node.data.src === "string" ? node.data.src : "",
+        },
+      }));
+
+      setNodes(updatedNodes);
       setEdges(savedEdges);
+      alert("Zihin haritası yüklendi!");
     } else {
       alert("Kaydedilmiş bir zihin haritası bulunamadı.");
     }
   };
 
-  // Sayfa yüklendiğinde zihin haritasını otomatik yükle
   useEffect(() => {
-    loadMindMap(id);
+    loadMindMap();
   }, []);
 
   return (
     <div>
-      {/* Kaydet Butonu */}
       <button
         onClick={saveMindMap}
         title="Kaydet"
@@ -54,7 +107,7 @@ const SaveMindMapButton: React.FC<SaveMindMapButtonProps> = ({
         />
       </button>
 
-      {/* <button
+      <button
         onClick={loadMindMap}
         title="Yükle"
         className="p-2 rounded"
@@ -62,9 +115,9 @@ const SaveMindMapButton: React.FC<SaveMindMapButtonProps> = ({
       >
         <FaUpload
           className="mr-2"
-          style={{ color: "#668b8b", fontSize: "24px", padding: "0.1rem" }}
+          style={{ color: "#668b8b", fontSize: "20px", padding: "0.05rem" }}
         />
-      </button> */}
+      </button>
     </div>
   );
 };
