@@ -114,5 +114,54 @@ textarea {
   border-radius: 0.375rem;
   overflow: hidden;
   position: absolute;
-  top: 90px;
+  top: 85px;
+  height: 80%; 
+  border: 1px solid #ccc
+  background-color: #e5e7eb; 
+  width: 74%; 
+}
+
+.altyazi {
+  position: absolute;
+  top: 690px;
+  right: 1240px; 
+  color: #2f4f4f;
+  font-style: italic; 
+  font-family: "Georgia", serif; 
+  font-weight: bold;
+  font-size: 10px; 
+}
+.mt-4 {
+  margin-top: 5.5rem; 
+  position: absolute;
+  top: 0; 
+  right: 0; 
+  padding: 15px; 
+  margin-right: 30px; 
+  background-color: #f9f9f9; 
+  border-radius: 8px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  width: 300px; 
+  transition: all 0.3s ease-in-out; 
+  font-family: "Roboto", sans-serif; 
+}
+.font-semibold {
+  font-weight: 700; 
+  font-size: 1.4rem; 
+  text-align: center;
+  margin-bottom: 10px; 
+  color: #333;
+  font-family: "Poppins", sans-serif; 
+}
+.text-lg {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #668b8b;
+  font-size: 20px;
+}
+.label {
+  font-size: 1rem;
+  color: #555;
+  font-weight: 500;
 }
