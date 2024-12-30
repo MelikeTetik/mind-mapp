@@ -1,36 +1,5 @@
-// import { memo } from 'react';
-// import { Handle, Position, NodeResizer } from '@xyflow/react';
- 
-// const ResizableNodeSelected = ({ data, selected }) => {
-//   return (
-//     <>
-//       <NodeResizer
-//         color="#8B4513"
-//         isVisible={selected}
-//         minWidth={100}
-//         minHeight={30}
-//       />
-//        <Handle type="target" position={Position.Top} style={{  background: '#8B4513', // Color
-//     width: '8px',      // Width (makes it thicker)
-//     height: '8px',     // Height (makes it a larger circle)
-//     border: '2px solid black', }}/>
-//       <div style={{ padding: 10 }}>{data.label}</div>
-//       <Handle type="source" position={Position.Bottom} style={{  background: '#8B4513', // Color
-//     width: '8px',      // Width (makes it thicker)
-//     height: '8px',     // Height (makes it a larger circle)
-//     border: '2px solid black', }}/>
-//       {/* <Handle type="source" position={Position.Right} id="right" style={{  background: 'blue', // Color
-//     width: '8px',      // Width (makes it thicker)
-//     height: '8px',     // Height (makes it a larger circle)
-//     border: '2px solid black', }} /> */}
-//     </>
-//   );
-// };
- 
-// export default memo(ResizableNodeSelected);
 
-
-
+//@xyflow/react kütüphanesini kullanarak bir yeniden boyutlandırılabilir düğüm (node) tasarımı sunar. Bileşen, düğümün etkileşime girebilmesi ve bağlanabilmesi için gerekli olan görsel bileşenleri içerir.
 import { memo } from 'react';
 import { Handle, Position, NodeResizer } from '@xyflow/react';
 
@@ -68,8 +37,12 @@ const ResizableNodeSelected = ({ data, selected }) => {
           textAlign: 'center',
         }}
       >
+                {data.imageSrc && <img src={data.imageSrc} alt={data.label} style={{ maxWidth: '120px' }} />}
+                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#3E2723' }}>
         {data.label}
       </div>
+      </div>
+
 
       {/* Source Handle (Bottom) */}
       <Handle
